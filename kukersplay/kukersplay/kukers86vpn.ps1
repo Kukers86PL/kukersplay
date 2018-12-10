@@ -1,6 +1,6 @@
 Import-Module -Name VpnClient -Force:$true
 
-$name = "Private VPN"
+$name = "Kukers86 VPN"
 $address = Get-Content -Path "./server.txt"
 $result = "false"
 
