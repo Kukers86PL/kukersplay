@@ -18,6 +18,7 @@ namespace kukersplay
     public partial class Form1 : Form
     {
         private string serverip = "";
+        private volatile bool running = true;
 
         public Form1()
         {
@@ -46,7 +47,7 @@ namespace kukersplay
             Byte[] bytes = new Byte[256];
             String data = null;
 
-            while (true)
+            while (running)
             {
                 TcpClient client = server.AcceptTcpClient();
 
@@ -67,7 +68,7 @@ namespace kukersplay
             var Server = new UdpClient(13100);
             var ResponseData = Encoding.ASCII.GetBytes(File.ReadAllText("./ipaddress.txt"));
 
-            while (true)
+            while (running)
             {
                 var ClientEp = new IPEndPoint(IPAddress.Broadcast, 13100);
                 Server.Send(ResponseData, ResponseData.Length, ClientEp);
@@ -110,7 +111,7 @@ namespace kukersplay
 
         public void startTCPClient()
         {
-            while (true)
+            while (running)
             {
                 if (serverip != "")
                 {
@@ -159,6 +160,16 @@ namespace kukersplay
 
         private void button4_Click(object sender, EventArgs e)
         {
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            running = false;
         }
     }
 }
