@@ -39,7 +39,7 @@ namespace kukersplay
             }
         }
 
-        public void startTCPServer()
+        public async void startTCPServerAsync()
         {
             TcpListener server = new TcpListener(IPAddress.Any, 13200);
             server.Start();
@@ -49,17 +49,25 @@ namespace kukersplay
 
             while (running)
             {
-                TcpClient client = server.AcceptTcpClient();
-
-                data = null;
-                NetworkStream stream = client.GetStream();
-                int i;
-
-                while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                try
                 {
-                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    TcpClient client = await server.AcceptTcpClientAsync();
+
+                    data = null;
+                    NetworkStream stream = client.GetStream();
+                    int i;
+
+                    while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    {
+                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    }
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(data)));
                 }
-                connectedBox.Invoke(new Action(() => connectedBox.Items.Add(data)));
+                catch (Exception)
+                {
+                    // nothing to do
+                }
+                Thread.Sleep(100);
             }
         }
 
@@ -95,7 +103,7 @@ namespace kukersplay
             {
                 Thread serverUDP = new Thread(new ThreadStart(startUDPServer));
                 serverUDP.Start();
-                Thread serverTCP = new Thread(new ThreadStart(startTCPServer));
+                Thread serverTCP = new Thread(new ThreadStart(startTCPServerAsync));
                 serverTCP.Start();
 
                 Client.Close();
