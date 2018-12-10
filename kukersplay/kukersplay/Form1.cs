@@ -79,6 +79,8 @@ namespace kukersplay
 
         public void startUDPClient()
         {
+            Thread.Sleep(10000);
+
             var Client = new UdpClient(13100);
             var ServerEp = new IPEndPoint(IPAddress.Any, 13100);
             Client.EnableBroadcast = true;
@@ -148,7 +150,6 @@ namespace kukersplay
 
             if (File.ReadAllText("./result.txt") == "true\r\n")
             {
-                Thread.Sleep(10000);
                 Thread clientUDP = new Thread(new ThreadStart(startUDPClient));
                 clientUDP.Start();
             }
