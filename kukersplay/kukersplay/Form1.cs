@@ -57,8 +57,6 @@ namespace kukersplay
                 while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
                     data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-
-                    data = data.ToUpper();
                 }
                 connectedBox.Invoke(new Action(() => connectedBox.Items.Add(data)));
             }
@@ -66,7 +64,7 @@ namespace kukersplay
 
         public void startUDPServer()
         {
-            var Server = new UdpClient();
+            var Server = new UdpClient(13100);
             var ResponseData = Encoding.ASCII.GetBytes(File.ReadAllText("./ipaddress.txt"));
 
             while (true)
