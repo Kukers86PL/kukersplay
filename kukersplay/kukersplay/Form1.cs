@@ -17,9 +17,9 @@ namespace kukersplay
 {
     public partial class Form1 : Form
     {
-        private string serverip = "";
-        private volatile bool running = true;
-        private List<TcpClient> clients = new List<TcpClient>();
+        private static string serverip = "";
+        private static volatile bool running = true;
+        private static List<TcpClient> clients = new List<TcpClient>();
         private static AutoResetEvent clientsEvent = new AutoResetEvent(true);
 
         public Form1()
