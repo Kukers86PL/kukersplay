@@ -19,6 +19,8 @@ namespace kukersplay
     {
         private string serverip = "";
         private volatile bool running = true;
+        private List<TcpClient> clients = new List<TcpClient>();
+        private static AutoResetEvent clientsEvent = new AutoResetEvent(true);
 
         public Form1()
         {
@@ -39,29 +41,54 @@ namespace kukersplay
             }
         }
 
+        public async void startTCPClientsRead()
+        {
+            while (running)
+            {
+                clientsEvent.WaitOne();
+                List<TcpClient> toRemove = new List<TcpClient>();
+                foreach (TcpClient client in clients)
+                {
+                    try
+                    {
+                        NetworkStream stream = client.GetStream();
+                        StreamReader reader = new StreamReader(stream);
+                        String data = await reader.ReadLineAsync();
+                        if (data != null && data != "") connectedBox.Invoke(new Action(() => connectedBox.Items.Add(data)));
+                    }
+                    catch (Exception)
+                    {
+                        toRemove.Add(client);
+                    }
+                }
+                foreach (TcpClient client in toRemove)
+                {
+                    clients.Remove(client);
+                }
+                clientsEvent.Set();
+                Thread.Sleep(100);
+            }
+        }
+
         public async void startTCPServerAsync()
         {
             TcpListener server = new TcpListener(IPAddress.Any, 13200);
             server.Start();
 
-            Byte[] bytes = new Byte[256];
-            String data = null;
+            Thread clientsRead = new Thread(new ThreadStart(startTCPClientsRead));
+            clientsRead.Start();
 
             while (running)
             {
                 try
                 {
                     TcpClient client = await server.AcceptTcpClientAsync();
-
-                    data = null;
-                    NetworkStream stream = client.GetStream();
-                    int i;
-
-                    while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    if (client != null)
                     {
-                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        clientsEvent.WaitOne();
+                        clients.Add(client);
+                        clientsEvent.Set();
                     }
-                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(data)));
                 }
                 catch (Exception)
                 {
@@ -101,12 +128,12 @@ namespace kukersplay
             }
             catch (Exception)
             {
+                Client.Close();
+
                 Thread serverUDP = new Thread(new ThreadStart(startUDPServer));
                 serverUDP.Start();
                 Thread serverTCP = new Thread(new ThreadStart(startTCPServerAsync));
                 serverTCP.Start();
-
-                Client.Close();
 
                 return;
             }
@@ -130,12 +157,11 @@ namespace kukersplay
                         Byte[] data = System.Text.Encoding.ASCII.GetBytes(File.ReadAllText("./login.txt"));
 
                         NetworkStream stream = client.GetStream();
+                        StreamWriter writer = new StreamWriter(stream);
 
-                        stream.Write(data, 0, data.Length);
-                        stream.Flush();
+                        writer.WriteLine(File.ReadAllText("./login.txt"));
+                        writer.Flush();
 
-                        stream.Close();
-                        client.Close();
                         return;
                     }
                     catch (Exception)
