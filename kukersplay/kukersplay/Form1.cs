@@ -131,6 +131,7 @@ namespace kukersplay
 
         private void received_callback(string a_message)
         {
+            m_udpClient.stop();
             serverip = a_message;
 
             Thread clientTCP = new Thread(new ThreadStart(startTCPClient));
