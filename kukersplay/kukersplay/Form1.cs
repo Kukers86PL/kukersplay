@@ -21,8 +21,8 @@ namespace kukersplay
         private static volatile bool running = true;
         private static List<TcpClient> clients = new List<TcpClient>();
         private static AutoResetEvent clientsEvent = new AutoResetEvent(true);
-        private UDPServer m_udpServer = new UDPServer();
-        private UDPClient m_udpClient = new UDPClient();
+        private IUDPServer m_udpServer = new UDPServer();
+        private IUDPClient m_udpClient = new UDPClient();
 
         public Form1()
         {
