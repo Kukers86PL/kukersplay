@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace kukersplay
 {
@@ -23,6 +24,7 @@ namespace kukersplay
         private static AutoResetEvent clientsEvent = new AutoResetEvent(true);
         private IUDPServer m_udpServer = new UDPServer();
         private IUDPClient m_udpClient = new UDPClient();
+        private ITCPClient m_tcpClient = new TCPClient();
 
         public Form1()
         {
@@ -100,48 +102,18 @@ namespace kukersplay
             }
         }
 
-        public void startTCPClient()
-        {
-            while (running)
-            {
-                if (serverip != "")
-                {
-                    try
-                    {
-                        TcpClient client = new TcpClient(serverip.Substring(0, serverip.Length - 2), 13200);
-
-                        Byte[] data = System.Text.Encoding.ASCII.GetBytes(File.ReadAllText("./login.txt"));
-
-                        NetworkStream stream = client.GetStream();
-                        StreamWriter writer = new StreamWriter(stream);
-
-                        writer.WriteLine(File.ReadAllText("./login.txt"));
-                        writer.Flush();
-
-                        return;
-                    }
-                    catch (Exception)
-                    {
-                        // nothing to do
-                    }
-                }
-                Thread.Sleep(1000);
-            }
-        }
-
         private void received_callback(string a_message)
         {
             m_udpClient.stop();
             serverip = a_message;
-
-            Thread clientTCP = new Thread(new ThreadStart(startTCPClient));
-            clientTCP.Start();
+            serverip = Regex.Replace(serverip, @"\s+", "");
+            m_tcpClient.start(null, serverip);
+            m_tcpClient.send(File.ReadAllText("./login.txt"));
         }
 
         private void timeout_callback()
         {
             m_udpClient.stop();
-            Thread.Sleep(1000);
             m_udpServer.start(File.ReadAllText("./ipaddress.txt"));
 
             Thread serverTCP = new Thread(new ThreadStart(startTCPServerAsync));
@@ -180,6 +152,7 @@ namespace kukersplay
             running = false;
             m_udpServer.stop();
             m_udpClient.stop();
+            m_tcpClient.stop();
         }
     }
 }
