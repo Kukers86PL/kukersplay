@@ -12,9 +12,11 @@ namespace kukersplay
     class UDPServer : IUDPServer
     {
         private UdpClient m_client;
+        private IPEndPoint m_clientEP;
         private byte[] m_message;
-        private bool m_working;
+        private volatile bool m_working;
         private int m_interval_ms;
+        private Thread m_serverThread;
 
         public void start(string a_message = "", int a_port = 13100, int a_interval_ms = 1000)
         {
@@ -22,24 +24,25 @@ namespace kukersplay
             m_client = new UdpClient(a_port);
             m_message = Encoding.ASCII.GetBytes(a_message);
             m_interval_ms = a_interval_ms;
-            Thread server = new Thread(new ThreadStart(workingThread));
-            server.Start();
+            m_clientEP = new IPEndPoint(IPAddress.Broadcast, a_port);
+
+            m_serverThread = new Thread(new ThreadStart(workingThread));
+            m_serverThread.Start();
         }
 
         public void stop()
         {
             m_working = false;
+            m_client.Close();
         }
 
         private void workingThread()
         {
-            var clientEp = new IPEndPoint(IPAddress.Broadcast, 13100);
             while (m_working)
             {
-                m_client.Send(m_message, m_message.Length, clientEp);
+                m_client.Send(m_message, m_message.Length, m_clientEP);
                 Thread.Sleep(m_interval_ms);
             }
-            m_client.Close();
         }
     }
 }

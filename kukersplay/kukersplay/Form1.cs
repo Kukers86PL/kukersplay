@@ -22,6 +22,7 @@ namespace kukersplay
         private static List<TcpClient> clients = new List<TcpClient>();
         private static AutoResetEvent clientsEvent = new AutoResetEvent(true);
         private UDPServer m_udpServer = new UDPServer();
+        private UDPClient m_udpClient = new UDPClient();
 
         public Form1()
         {
@@ -99,39 +100,6 @@ namespace kukersplay
             }
         }
 
-        public void startUDPClient()
-        {
-            Thread.Sleep(10000);
-
-            var Client = new UdpClient(13100);
-            var ServerEp = new IPEndPoint(IPAddress.Any, 13100);
-            Client.EnableBroadcast = true;
-            Client.Client.ReceiveTimeout = 10000;
-
-            try
-            {
-                var ServerResponseData = Client.Receive(ref ServerEp);
-                var ServerResponse = Encoding.ASCII.GetString(ServerResponseData);
-                serverip = ServerResponse;
-            }
-            catch (Exception)
-            {
-                Client.Close();
-
-                m_udpServer.start(File.ReadAllText("./ipaddress.txt"));
-
-                Thread serverTCP = new Thread(new ThreadStart(startTCPServerAsync));
-                serverTCP.Start();
-
-                return;
-            }
-
-            Client.Close();
-
-            Thread clientTCP = new Thread(new ThreadStart(startTCPClient));
-            clientTCP.Start();
-        }
-
         public void startTCPClient()
         {
             while (running)
@@ -161,6 +129,24 @@ namespace kukersplay
             }
         }
 
+        private void received_callback(string a_message)
+        {
+            serverip = a_message;
+
+            Thread clientTCP = new Thread(new ThreadStart(startTCPClient));
+            clientTCP.Start();
+        }
+
+        private void timeout_callback()
+        {
+            m_udpClient.stop();
+            Thread.Sleep(1000);
+            m_udpServer.start(File.ReadAllText("./ipaddress.txt"));
+
+            Thread serverTCP = new Thread(new ThreadStart(startTCPServerAsync));
+            serverTCP.Start();
+        }
+
         private void button1_ClickAsync(object sender, EventArgs e)
         {
             File.WriteAllText("./login.txt", loginBox.Text);
@@ -171,8 +157,7 @@ namespace kukersplay
 
             if (File.ReadAllText("./result.txt") == "true\r\n")
             {
-                Thread clientUDP = new Thread(new ThreadStart(startUDPClient));
-                clientUDP.Start();
+                m_udpClient.start(received_callback, timeout_callback);
             }
         }
 
@@ -193,6 +178,7 @@ namespace kukersplay
         {
             running = false;
             m_udpServer.stop();
+            m_udpClient.stop();
         }
     }
 }
