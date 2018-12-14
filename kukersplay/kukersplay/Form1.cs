@@ -21,6 +21,7 @@ namespace kukersplay
         private static volatile bool running = true;
         private static List<TcpClient> clients = new List<TcpClient>();
         private static AutoResetEvent clientsEvent = new AutoResetEvent(true);
+        private UDPServer m_udpServer = new UDPServer();
 
         public Form1()
         {
@@ -98,19 +99,6 @@ namespace kukersplay
             }
         }
 
-        public void startUDPServer()
-        {
-            var Server = new UdpClient(13100);
-            var ResponseData = Encoding.ASCII.GetBytes(File.ReadAllText("./ipaddress.txt"));
-
-            while (running)
-            {
-                var ClientEp = new IPEndPoint(IPAddress.Broadcast, 13100);
-                Server.Send(ResponseData, ResponseData.Length, ClientEp);
-                Thread.Sleep(1000);
-            }
-        }
-
         public void startUDPClient()
         {
             Thread.Sleep(10000);
@@ -130,8 +118,8 @@ namespace kukersplay
             {
                 Client.Close();
 
-                Thread serverUDP = new Thread(new ThreadStart(startUDPServer));
-                serverUDP.Start();
+                m_udpServer.start(File.ReadAllText("./ipaddress.txt"));
+
                 Thread serverTCP = new Thread(new ThreadStart(startTCPServerAsync));
                 serverTCP.Start();
 
@@ -204,6 +192,7 @@ namespace kukersplay
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             running = false;
+            m_udpServer.stop();
         }
     }
 }
