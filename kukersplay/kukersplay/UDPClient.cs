@@ -35,7 +35,7 @@ namespace kukersplay
         public void stop()
         {
             m_working = false;
-            m_client.Close();
+            if (m_client != null) m_client.Close();
         }
 
         private void workingThread()

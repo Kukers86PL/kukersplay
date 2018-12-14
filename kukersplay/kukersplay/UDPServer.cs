@@ -18,7 +18,7 @@ namespace kukersplay
         private int m_interval_ms;
         private Thread m_serverThread;
 
-        public void start(string a_message = "", int a_port = 13100, int a_interval_ms = 1000)
+        public void start(string a_message, int a_port = 13100, int a_interval_ms = 1000)
         {
             m_working = true;
             m_client = new UdpClient(a_port);
@@ -33,7 +33,7 @@ namespace kukersplay
         public void stop()
         {
             m_working = false;
-            m_client.Close();
+            if (m_client != null) m_client.Close();
         }
 
         private void workingThread()
