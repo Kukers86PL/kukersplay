@@ -102,7 +102,7 @@
             this.connectedBox.ItemHeight = 16;
             this.connectedBox.Location = new System.Drawing.Point(251, 39);
             this.connectedBox.Name = "connectedBox";
-            this.connectedBox.Size = new System.Drawing.Size(196, 132);
+            this.connectedBox.Size = new System.Drawing.Size(343, 164);
             this.connectedBox.TabIndex = 6;
             // 
             // label4

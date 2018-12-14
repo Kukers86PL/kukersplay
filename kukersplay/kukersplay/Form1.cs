@@ -22,6 +22,7 @@ namespace kukersplay
         private IUDPClient m_udpClient = new UDPClient();
         private ITCPClient m_tcpClient = new TCPClient();
         private ITCPServer m_tcpServer = new TCPServer();
+        private IMessagesManager m_messageManager = new MessagesManager();
 
         public Form1()
         {
@@ -44,27 +45,52 @@ namespace kukersplay
 
         private void received_callback_3(string a_message)
         {
-            connectedBox.Invoke(new Action(() => connectedBox.Items.Add(a_message)));
+            MSG_TYPE msg_type = m_messageManager.parse(a_message);
+            switch (msg_type)
+            {
+                case MSG_TYPE.MSG_CLIENT_INFO_TYPE:
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(m_messageManager.getClientLogin() + " - " + m_messageManager.getClientIP())));
+                    break;
+                default:
+                    // nothing to do
+                    break;
+            }
         }
 
         private void received_callback(string a_message)
         {
             m_udpClient.stop();
-            a_message = Regex.Replace(a_message, @"\s+", "");
-            m_tcpClient.start(received_callback_3, a_message);
-            m_tcpClient.send(File.ReadAllText("./login.txt"));
+            MSG_TYPE msg_type = m_messageManager.parse(a_message);
+            switch (msg_type)
+            {
+                case MSG_TYPE.MSG_SERVER_INFO_TYPE:
+                    m_tcpClient.start(received_callback_3, m_messageManager.getServerIP());
+                    m_tcpClient.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
+                    break;
+                default:
+                    // nothing to do
+                    break;
+            }
         }
 
         private void received_callback_2(string a_message)
         {
-            connectedBox.Invoke(new Action(() => connectedBox.Items.Add(a_message)));
-            m_tcpServer.send(File.ReadAllText("./login.txt"));
+            MSG_TYPE msg_type = m_messageManager.parse(a_message);
+            switch (msg_type)
+            {
+                case MSG_TYPE.MSG_CLIENT_INFO_TYPE:
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(m_messageManager.getClientLogin() + " - " + m_messageManager.getClientIP())));
+                    break;
+                default:
+                    break;
+            }
+            m_tcpServer.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
         }
 
         private void timeout_callback()
         {
             m_udpClient.stop();
-            m_udpServer.start(File.ReadAllText("./ipaddress.txt"));
+            m_udpServer.start(m_messageManager.buildServerInfo(File.ReadAllText("./ipaddress.txt")));
 
             m_tcpServer.start(received_callback_2);
         }
