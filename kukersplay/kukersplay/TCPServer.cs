@@ -38,12 +38,11 @@ namespace kukersplay
         public void stop()
         {
             m_running = false;
-            m_clientsEvent.WaitOne();
+            m_server.Stop();
             foreach (TcpClient client in m_clients)
             {
                 client.Close();
             }
-            m_clientsEvent.Set();
         }
 
         public void send(string a_message)
