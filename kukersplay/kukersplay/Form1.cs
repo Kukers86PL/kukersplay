@@ -105,8 +105,18 @@ namespace kukersplay
             m_tcpServer.start(tcp_server_received_callback);
         }
 
+        private void allStop()
+        {
+            m_udpServer.stop();
+            m_udpClient.stop();
+            m_tcpClient.stop();
+            m_tcpServer.stop();
+        }
+
         private void button1_ClickAsync(object sender, EventArgs e)
         {
+            allStop();
+
             File.WriteAllText("./login.txt", loginBox.Text);
             File.WriteAllText("./pass.txt", passBox.Text);
             File.WriteAllText("./server.txt", serverBox.Text);
@@ -134,10 +144,7 @@ namespace kukersplay
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            m_udpServer.stop();
-            m_udpClient.stop();
-            m_tcpClient.stop();
-            m_tcpServer.stop();
+            allStop();
         }
     }
 }
