@@ -52,7 +52,7 @@ namespace kukersplay
                 {
                     // nothing to do
                 }
-                m_callback_timeout();
+                if (m_working) m_callback_timeout();
             }
         }
     }
