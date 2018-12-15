@@ -146,5 +146,36 @@ namespace kukersplay
         {
             allStop();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            string h3path = "";
+            try
+            {
+                h3path = File.ReadAllText("./h3.txt");
+            }
+            catch (Exception)
+            {
+
+            }
+            while (h3path == "")
+            {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.InitialDirectory = "C:\\";
+                ofd.Multiselect = false;
+                ofd.Filter = "Heroes3|Heroes3.exe|All files|*.*";
+                DialogResult result = ofd.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    h3path = ofd.FileName;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            File.WriteAllText("./h3.txt", h3path);
+        }
     }
 }

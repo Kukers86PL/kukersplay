@@ -37,6 +37,7 @@
             this.connectedBox = new System.Windows.Forms.ListBox();
             this.label4 = new System.Windows.Forms.Label();
             this.serverBox = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -102,7 +103,7 @@
             this.connectedBox.ItemHeight = 16;
             this.connectedBox.Location = new System.Drawing.Point(251, 39);
             this.connectedBox.Name = "connectedBox";
-            this.connectedBox.Size = new System.Drawing.Size(343, 164);
+            this.connectedBox.Size = new System.Drawing.Size(281, 164);
             this.connectedBox.TabIndex = 6;
             // 
             // label4
@@ -121,11 +122,22 @@
             this.serverBox.Size = new System.Drawing.Size(132, 22);
             this.serverBox.TabIndex = 8;
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(588, 43);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(109, 39);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Host H3";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(665, 252);
+            this.ClientSize = new System.Drawing.Size(1077, 288);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.serverBox);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.connectedBox);
@@ -157,6 +169,7 @@
         private System.Windows.Forms.ListBox connectedBox;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox serverBox;
+        private System.Windows.Forms.Button button2;
     }
 }
 
