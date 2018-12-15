@@ -51,6 +51,10 @@ namespace kukersplay
                 case MSG_TYPE.MSG_CLIENT_INFO_TYPE:
                     connectedBox.Invoke(new Action(() => connectedBox.Items.Add(m_messageManager.getClientLogin() + " - " + m_messageManager.getClientIP())));
                     break;
+                case MSG_TYPE.MSG_RESET_INFO_TYPE:
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Clear()));
+                    m_tcpClient.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
+                    break;
                 default:
                     // nothing to do
                     break;
@@ -65,7 +69,7 @@ namespace kukersplay
             {
                 case MSG_TYPE.MSG_SERVER_INFO_TYPE:
                     m_tcpClient.start(tcp_client_received_callback, m_messageManager.getServerIP());
-                    m_tcpClient.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
+                    m_tcpClient.send(m_messageManager.buildResetInfo());
                     break;
                 default:
                     // nothing to do
@@ -79,12 +83,18 @@ namespace kukersplay
             switch (msg_type)
             {
                 case MSG_TYPE.MSG_CLIENT_INFO_TYPE:
+                    m_tcpServer.send(a_message);
                     connectedBox.Invoke(new Action(() => connectedBox.Items.Add(m_messageManager.getClientLogin() + " - " + m_messageManager.getClientIP())));
+                    break;
+                case MSG_TYPE.MSG_RESET_INFO_TYPE:
+                    m_tcpServer.send(a_message);
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Clear()));
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(Regex.Replace(File.ReadAllText("./login.txt"), @"\s+", "") + " - " + Regex.Replace(File.ReadAllText("./ipaddress.txt"), @"\s+", ""))));
+                    m_tcpServer.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
                     break;
                 default:
                     break;
             }
-            m_tcpServer.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
         }
 
         private void udp_client_timeout_callback()

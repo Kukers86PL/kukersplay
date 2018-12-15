@@ -15,10 +15,9 @@ namespace kukersplay
         private string[] m_clients;
 
         private static char DELIMITER = ':';
-        private static char MSG_CLIENT_INFO_LIST_DELIMITER = '-';
         private static string MSG_SERVER_INFO = "SERVER";
         private static string MSG_CLIENT_INFO = "CLIENT";
-        private static string MSG_CLIENT_INFO_LIST = "CLIENTS";
+        private static string MSG_RESET_INFO = "RESET";
 
         public string buildClientInfo(string a_login, string a_clientIP)
         {
@@ -28,6 +27,11 @@ namespace kukersplay
         public string buildServerInfo(string a_host)
         {
             return MSG_SERVER_INFO + DELIMITER + Regex.Replace(a_host, @"\s+", "");
+        }
+
+        public string buildResetInfo()
+        {
+            return MSG_RESET_INFO;
         }
 
         public string getClientIP()
@@ -59,32 +63,11 @@ namespace kukersplay
                 m_clientIP = words[2];
                 return MSG_TYPE.MSG_CLIENT_INFO_TYPE;
             }
-            else if (words[0].Contains(MSG_CLIENT_INFO_LIST))
+            else if (words[0].Contains(MSG_RESET_INFO))
             {
-                List<string> list = new List<string>();
-                for (int i = 1; i < words.Length; i++)
-                {
-                    list.Add(words[i]);
-                }
-                m_clients = list.ToArray();
-                return MSG_TYPE.MSG_CLIENT_INFO_TYPE;
+                return MSG_TYPE.MSG_RESET_INFO_TYPE;
             }
             return MSG_TYPE.MSG_UNKNOWN_TYPE;
-        }
-
-        public string buildClientInfoList(string[] a_login, string[] a_clientIP)
-        {
-            string result = MSG_CLIENT_INFO_LIST + DELIMITER;
-            for (int i = 0; i < a_login.Length; i++)
-            {
-                result += Regex.Replace(a_login[i], @"\s+", "") + MSG_CLIENT_INFO_LIST_DELIMITER + Regex.Replace(a_clientIP[i], @"\s+", "") + DELIMITER;
-            }
-            return result;
-        }
-
-        public string[] getClientInfoList()
-        {
-            return m_clients;
         }
     }
 }

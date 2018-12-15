@@ -10,7 +10,7 @@ namespace kukersplay
     {
         MSG_SERVER_INFO_TYPE = 0,
         MSG_CLIENT_INFO_TYPE,
-        MSG_CLIENT_INFO_LIST,
+        MSG_RESET_INFO_TYPE,
         MSG_UNKNOWN_TYPE
     }
 
@@ -20,11 +20,10 @@ namespace kukersplay
 
         string buildServerInfo(string a_host);
         string buildClientInfo(string a_login, string a_clientIP);
-        string buildClientInfoList(string[] a_login, string[] a_clientIP);
+        string buildResetInfo();
 
         string getServerIP();
         string getClientLogin();
         string getClientIP();
-        string[] getClientInfoList();
     }
 }
