@@ -12,19 +12,22 @@ namespace kukersplay
         private string m_serverIP;
         private string m_clientIP;
         private string m_clientLogin;
+        private string[] m_clients;
 
-        private static string DELIMITER = ":";
-        private static string MSG_SERVER_INFO = "SERVER" + DELIMITER;
-        private static string MSG_CLIENT_INFO = "CLIENT" + DELIMITER;
+        private static char DELIMITER = ':';
+        private static char MSG_CLIENT_INFO_LIST_DELIMITER = '-';
+        private static string MSG_SERVER_INFO = "SERVER";
+        private static string MSG_CLIENT_INFO = "CLIENT";
+        private static string MSG_CLIENT_INFO_LIST = "CLIENTS";
 
         public string buildClientInfo(string a_login, string a_clientIP)
         {
-            return MSG_CLIENT_INFO + a_login + DELIMITER + a_clientIP;
+            return MSG_CLIENT_INFO + DELIMITER + Regex.Replace(a_login, @"\s+", "") + DELIMITER + Regex.Replace(a_clientIP, @"\s+", "");
         }
 
         public string buildServerInfo(string a_host)
         {
-            return MSG_SERVER_INFO + a_host;
+            return MSG_SERVER_INFO + DELIMITER + Regex.Replace(a_host, @"\s+", "");
         }
 
         public string getClientIP()
@@ -44,20 +47,44 @@ namespace kukersplay
 
         public MSG_TYPE parse(string a_message)
         {
-            if (a_message.Substring(0, MSG_SERVER_INFO.Length) == MSG_SERVER_INFO)
-            {
-                m_serverIP = a_message.Substring(MSG_SERVER_INFO.Length, a_message.Length - MSG_SERVER_INFO.Length);
-                m_serverIP = Regex.Replace(m_serverIP, @"\s+", "");
+            string[] words = Regex.Replace(a_message, @"\s+", "").Split(DELIMITER);
+            if (words[0].Contains(MSG_SERVER_INFO))
+            {   
+                m_serverIP = words[1];
                 return MSG_TYPE.MSG_SERVER_INFO_TYPE;
             }
-            else if (a_message.Substring(0, MSG_CLIENT_INFO.Length) == MSG_CLIENT_INFO)
+            else if (words[0].Contains(MSG_CLIENT_INFO))
             {
-                int index1 = a_message.IndexOf(DELIMITER, MSG_CLIENT_INFO.Length);
-                m_clientLogin = a_message.Substring(MSG_CLIENT_INFO.Length, index1 - MSG_CLIENT_INFO.Length);
-                m_clientIP = a_message.Substring(index1 + 1, a_message.Length - index1 - 1);
+                m_clientLogin = words[1];
+                m_clientIP = words[2];
+                return MSG_TYPE.MSG_CLIENT_INFO_TYPE;
+            }
+            else if (words[0].Contains(MSG_CLIENT_INFO_LIST))
+            {
+                List<string> list = new List<string>();
+                for (int i = 1; i < words.Length; i++)
+                {
+                    list.Add(words[i]);
+                }
+                m_clients = list.ToArray();
                 return MSG_TYPE.MSG_CLIENT_INFO_TYPE;
             }
             return MSG_TYPE.MSG_UNKNOWN_TYPE;
+        }
+
+        public string buildClientInfoList(string[] a_login, string[] a_clientIP)
+        {
+            string result = MSG_CLIENT_INFO_LIST + DELIMITER;
+            for (int i = 0; i < a_login.Length; i++)
+            {
+                result += Regex.Replace(a_login[i], @"\s+", "") + MSG_CLIENT_INFO_LIST_DELIMITER + Regex.Replace(a_clientIP[i], @"\s+", "") + DELIMITER;
+            }
+            return result;
+        }
+
+        public string[] getClientInfoList()
+        {
+            return m_clients;
         }
     }
 }

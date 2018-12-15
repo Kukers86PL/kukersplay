@@ -38,7 +38,7 @@ namespace kukersplay
         public void stop()
         {
             m_running = false;
-            m_server.Stop();
+            if (m_server != null) m_server.Stop();
             foreach (TcpClient client in m_clients)
             {
                 client.Close();

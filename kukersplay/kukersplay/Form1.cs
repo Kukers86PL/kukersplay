@@ -43,7 +43,7 @@ namespace kukersplay
             }
         }
 
-        private void received_callback_3(string a_message)
+        private void tcp_client_received_callback(string a_message)
         {
             MSG_TYPE msg_type = m_messageManager.parse(a_message);
             switch (msg_type)
@@ -57,14 +57,14 @@ namespace kukersplay
             }
         }
 
-        private void received_callback(string a_message)
+        private void udp_client_received_callback(string a_message)
         {
             m_udpClient.stop();
             MSG_TYPE msg_type = m_messageManager.parse(a_message);
             switch (msg_type)
             {
                 case MSG_TYPE.MSG_SERVER_INFO_TYPE:
-                    m_tcpClient.start(received_callback_3, m_messageManager.getServerIP());
+                    m_tcpClient.start(tcp_client_received_callback, m_messageManager.getServerIP());
                     m_tcpClient.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
                     break;
                 default:
@@ -73,7 +73,7 @@ namespace kukersplay
             }
         }
 
-        private void received_callback_2(string a_message)
+        private void tcp_server_received_callback(string a_message)
         {
             MSG_TYPE msg_type = m_messageManager.parse(a_message);
             switch (msg_type)
@@ -87,12 +87,12 @@ namespace kukersplay
             m_tcpServer.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
         }
 
-        private void timeout_callback()
+        private void udp_client_timeout_callback()
         {
             m_udpClient.stop();
             m_udpServer.start(m_messageManager.buildServerInfo(File.ReadAllText("./ipaddress.txt")));
 
-            m_tcpServer.start(received_callback_2);
+            m_tcpServer.start(tcp_server_received_callback);
         }
 
         private void button1_ClickAsync(object sender, EventArgs e)
@@ -105,7 +105,7 @@ namespace kukersplay
 
             if (File.ReadAllText("./result.txt") == "true\r\n")
             {
-                m_udpClient.start(received_callback, timeout_callback);
+                m_udpClient.start(udp_client_received_callback, udp_client_timeout_callback);
             }
         }
 
