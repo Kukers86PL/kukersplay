@@ -174,8 +174,12 @@ namespace kukersplay
                     return;
                 }
             }
+          File.WriteAllText("./h3.txt", h3path);
+        }
 
-            File.WriteAllText("./h3.txt", h3path);
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
