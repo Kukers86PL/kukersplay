@@ -12,7 +12,6 @@ namespace kukersplay
         private string m_serverIP;
         private string m_clientIP;
         private string m_clientLogin;
-        private string[] m_clients;
 
         private static char DELIMITER = ':';
         private static string MSG_SERVER_INFO = "SERVER";
