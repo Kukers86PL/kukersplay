@@ -51,21 +51,28 @@ namespace kukersplay
 
         public MSG_TYPE parse(string a_message)
         {
-            string[] words = Regex.Replace(a_message, @"\s+", "").Split(DELIMITER);
-            if (words[0].Contains(MSG_SERVER_INFO))
-            {   
-                m_serverIP = words[1];
-                return MSG_TYPE.MSG_SERVER_INFO_TYPE;
-            }
-            else if (words[0].Contains(MSG_CLIENT_INFO))
+            try
             {
-                m_clientLogin = words[1];
-                m_clientIP = words[2];
-                return MSG_TYPE.MSG_CLIENT_INFO_TYPE;
+                string[] words = Regex.Replace(a_message, @"\s+", "").Split(DELIMITER);
+                if (words[0].Contains(MSG_SERVER_INFO))
+                {
+                    m_serverIP = words[1];
+                    return MSG_TYPE.MSG_SERVER_INFO_TYPE;
+                }
+                else if (words[0].Contains(MSG_CLIENT_INFO))
+                {
+                    m_clientLogin = words[1];
+                    m_clientIP = words[2];
+                    return MSG_TYPE.MSG_CLIENT_INFO_TYPE;
+                }
+                else if (words[0].Contains(MSG_RESET_INFO))
+                {
+                    return MSG_TYPE.MSG_RESET_INFO_TYPE;
+                }
             }
-            else if (words[0].Contains(MSG_RESET_INFO))
+            catch (Exception)
             {
-                return MSG_TYPE.MSG_RESET_INFO_TYPE;
+                // nothing to do
             }
             return MSG_TYPE.MSG_UNKNOWN_TYPE;
         }
