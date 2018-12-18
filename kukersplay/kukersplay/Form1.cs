@@ -149,6 +149,16 @@ namespace kukersplay
 
         private void button2_Click(object sender, EventArgs e)
         {
+            
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
             string h3path = "";
             try
             {
@@ -158,28 +168,24 @@ namespace kukersplay
             {
 
             }
-            while (h3path == "")
+            while (true)
             {
                 OpenFileDialog ofd = new OpenFileDialog();
-                ofd.InitialDirectory = "C:\\";
+                ofd.InitialDirectory = h3path;
                 ofd.Multiselect = false;
                 ofd.Filter = "Heroes3|Heroes3.exe|All files|*.*";
                 DialogResult result = ofd.ShowDialog();
                 if (result == DialogResult.OK)
                 {
                     h3path = ofd.FileName;
+                    break;
                 }
                 else
                 {
                     return;
                 }
             }
-          File.WriteAllText("./h3.txt", h3path);
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
+            File.WriteAllText("./h3.txt", h3path);
         }
     }
 }
