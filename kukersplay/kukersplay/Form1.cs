@@ -190,7 +190,13 @@ namespace kukersplay
 
         private void button3_Click_1(object sender, EventArgs e)
         {
-            Process.Start("AutoIt3_x64.exe", "h3newhost.au3").WaitForExit();
+            var startInfo = new ProcessStartInfo();
+
+            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+            startInfo.FileName = File.ReadAllText("./h3.txt");
+
+            Process.Start(startInfo);
+            Process.Start("AutoIt3_x64.exe", "h3newhost.au3");
         }
     }
 }
