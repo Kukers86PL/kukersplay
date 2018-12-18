@@ -187,5 +187,10 @@ namespace kukersplay
             }
             File.WriteAllText("./h3.txt", h3path);
         }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            Process.Start("AutoIt3_x64.exe", "h3newhost.au3").WaitForExit();
+        }
     }
 }
