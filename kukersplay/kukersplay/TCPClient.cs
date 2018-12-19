@@ -12,26 +12,22 @@ namespace kukersplay
     class TCPClient : ITCPClient
     {
         private TcpClient m_client;
-        private NetworkStream m_client_stream;
-        private StreamReader m_client_reader;
-        private StreamWriter m_client_writer;
         private volatile bool m_running;
         private Thread m_clientThread;
         private Action<string> m_callback_received;
 
         public void send(string a_message)
         {
-            m_client_writer.WriteLine(a_message);
-            m_client_writer.Flush();
+            NetworkStream stream = m_client.GetStream();
+            StreamWriter client_writer = new StreamWriter(stream);
+            client_writer.WriteLine(a_message);
+            client_writer.Flush();
         }
 
         public void start(Action<string> a_callback_received, string a_hostname, int a_port = 13200)
         {
             m_client = new TcpClient(a_hostname, a_port);
             m_client.Client.ReceiveTimeout = 1000;
-            m_client_stream = m_client.GetStream();
-            m_client_reader = new StreamReader(m_client_stream);
-            m_client_writer = new StreamWriter(m_client_stream);
             m_callback_received = a_callback_received;
             m_running = true;
 
@@ -42,20 +38,22 @@ namespace kukersplay
         public void stop()
         {
             m_running = false;
-            if (m_client_writer != null) m_client_writer.Close();
-            if (m_client_reader != null) m_client_reader.Close();
-            if (m_client_stream != null) m_client_stream.Close();
             if (m_client != null) m_client.Close();
         }
 
-        private void workingThreadAsync()
+        private async void workingThreadAsync()
         {
             while (m_running)
             {
                 try
                 {
-                    string data = m_client_reader.ReadLine();
-                    m_callback_received(data);
+                    NetworkStream stream = m_client.GetStream();
+                    StreamReader client_reader = new StreamReader(stream);
+                    string data = await client_reader.ReadLineAsync();
+                    if (data != null && data != "")
+                    {
+                        m_callback_received(data);
+                    }
                 }
                 catch (Exception)
                 {

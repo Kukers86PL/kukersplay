@@ -11,7 +11,13 @@ namespace kukersplay
         MSG_SERVER_INFO_TYPE = 0,
         MSG_CLIENT_INFO_TYPE,
         MSG_RESET_INFO_TYPE,
+        MSG_HOST_INFO_TYPE,
         MSG_UNKNOWN_TYPE
+    }
+
+    enum GAME_TYPE
+    {
+        GAME_H3_TYPE = 0
     }
 
     interface IMessagesManager
@@ -21,9 +27,12 @@ namespace kukersplay
         string buildServerInfo(string a_host);
         string buildClientInfo(string a_login, string a_clientIP);
         string buildResetInfo();
+        string buildHostInfo(string a_host, GAME_TYPE a_game);
 
         string getServerIP();
         string getClientLogin();
         string getClientIP();
+        string getHostIP();
+        GAME_TYPE getHostGame();
     }
 }

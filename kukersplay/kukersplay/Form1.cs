@@ -45,56 +45,17 @@ namespace kukersplay
 
         private void tcp_client_received_callback(string a_message)
         {
-            MSG_TYPE msg_type = m_messageManager.parse(a_message);
-            switch (msg_type)
-            {
-                case MSG_TYPE.MSG_CLIENT_INFO_TYPE:
-                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(m_messageManager.getClientLogin() + " - " + m_messageManager.getClientIP())));
-                    break;
-                case MSG_TYPE.MSG_RESET_INFO_TYPE:
-                    connectedBox.Invoke(new Action(() => connectedBox.Items.Clear()));
-                    m_tcpClient.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
-                    break;
-                default:
-                    // nothing to do
-                    break;
-            }
+            receive(a_message);
         }
 
         private void udp_client_received_callback(string a_message)
         {
-            m_udpClient.stop();
-            MSG_TYPE msg_type = m_messageManager.parse(a_message);
-            switch (msg_type)
-            {
-                case MSG_TYPE.MSG_SERVER_INFO_TYPE:
-                    m_tcpClient.start(tcp_client_received_callback, m_messageManager.getServerIP());
-                    m_tcpClient.send(m_messageManager.buildResetInfo());
-                    break;
-                default:
-                    // nothing to do
-                    break;
-            }
+            receive(a_message);
         }
 
         private void tcp_server_received_callback(string a_message)
         {
-            MSG_TYPE msg_type = m_messageManager.parse(a_message);
-            switch (msg_type)
-            {
-                case MSG_TYPE.MSG_CLIENT_INFO_TYPE:
-                    m_tcpServer.send(a_message);
-                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(m_messageManager.getClientLogin() + " - " + m_messageManager.getClientIP())));
-                    break;
-                case MSG_TYPE.MSG_RESET_INFO_TYPE:
-                    m_tcpServer.send(a_message);
-                    connectedBox.Invoke(new Action(() => connectedBox.Items.Clear()));
-                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(Regex.Replace(File.ReadAllText("./login.txt"), @"\s+", "") + " - " + Regex.Replace(File.ReadAllText("./ipaddress.txt"), @"\s+", ""))));
-                    m_tcpServer.send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
-                    break;
-                default:
-                    break;
-            }
+            receive(a_message);
         }
 
         private void udp_client_timeout_callback()
@@ -188,6 +149,64 @@ namespace kukersplay
             File.WriteAllText("./h3.txt", h3path);
         }
 
+        private void receive(string a_message)
+        {
+            MSG_TYPE msg_type = m_messageManager.parse(a_message);
+            switch (msg_type)
+            {
+                case MSG_TYPE.MSG_CLIENT_INFO_TYPE:
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(m_messageManager.getClientLogin() + " - " + m_messageManager.getClientIP())));
+                    break;
+                case MSG_TYPE.MSG_RESET_INFO_TYPE:
+                    m_tcpServer.send(a_message);
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Clear()));
+                    connectedBox.Invoke(new Action(() => connectedBox.Items.Add(Regex.Replace(File.ReadAllText("./login.txt"), @"\s+", "") + " - " + Regex.Replace(File.ReadAllText("./ipaddress.txt"), @"\s+", ""))));
+                    send(m_messageManager.buildClientInfo(File.ReadAllText("./login.txt"), File.ReadAllText("./ipaddress.txt")));
+                    break;
+                case MSG_TYPE.MSG_SERVER_INFO_TYPE:
+                    m_udpClient.stop();
+                    m_tcpClient.start(tcp_client_received_callback, m_messageManager.getServerIP());
+                    send(m_messageManager.buildResetInfo());
+                    break;
+                case MSG_TYPE.MSG_HOST_INFO_TYPE:
+                    if (!(File.ReadAllText("./ipaddress.txt").Contains(m_messageManager.getHostIP())))
+                    {
+                        File.WriteAllText("./hostip.txt", m_messageManager.getHostIP());
+                        var startInfo = new ProcessStartInfo();
+
+                        startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+                        startInfo.FileName = File.ReadAllText("./h3.txt");
+
+                        Process.Start(startInfo);
+                        Process.Start("AutoIt3_x64.exe", "h3newjoin.au3").WaitForExit();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void send(string a_message)
+        {
+            try
+            {
+                m_tcpClient.send(a_message);
+            }
+            catch (Exception)
+            {
+                // nothing to do
+            }
+
+            try
+            {
+                m_tcpServer.send(a_message);
+            }
+            catch (Exception)
+            {
+                // nothing to do
+            }
+        }
+
         private void button3_Click_1(object sender, EventArgs e)
         {
             var startInfo = new ProcessStartInfo();
@@ -196,7 +215,8 @@ namespace kukersplay
             startInfo.FileName = File.ReadAllText("./h3.txt");
 
             Process.Start(startInfo);
-            Process.Start("AutoIt3_x64.exe", "h3newhost.au3");
+            Process.Start("AutoIt3_x64.exe", "h3newhost.au3").WaitForExit();
+            send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_TYPE));
         }
     }
 }

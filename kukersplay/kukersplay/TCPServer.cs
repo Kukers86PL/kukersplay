@@ -99,7 +99,7 @@ namespace kukersplay
                         NetworkStream stream = client.GetStream();
                         StreamReader reader = new StreamReader(stream);
                         String data = await reader.ReadLineAsync();
-                        if (data != null)
+                        if (data != null && data != "")
                         {
                             Thread tmpThread = new Thread(callbackThread);
                             tmpThread.Start(data);
