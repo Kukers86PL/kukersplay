@@ -64,6 +64,7 @@ namespace kukersplay
             m_udpServer.start(m_messageManager.buildServerInfo(File.ReadAllText("./ipaddress.txt")));
 
             m_tcpServer.start(tcp_server_received_callback);
+            connectedBox.Invoke(new Action(() => connectedBox.Items.Add(Regex.Replace(File.ReadAllText("./login.txt"), @"\s+", "") + " - " + Regex.Replace(File.ReadAllText("./ipaddress.txt"), @"\s+", ""))));
         }
 
         private void allStop()
@@ -188,23 +189,8 @@ namespace kukersplay
 
         private void send(string a_message)
         {
-            try
-            {
-                m_tcpClient.send(a_message);
-            }
-            catch (Exception)
-            {
-                // nothing to do
-            }
-
-            try
-            {
-                m_tcpServer.send(a_message);
-            }
-            catch (Exception)
-            {
-                // nothing to do
-            }
+            m_tcpServer.send(a_message);
+            m_tcpClient.send(a_message);
         }
 
         private void button3_Click_1(object sender, EventArgs e)

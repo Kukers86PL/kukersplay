@@ -16,8 +16,6 @@ namespace kukersplay
         private List<TcpClient> m_clients = new List<TcpClient>();
         private AutoResetEvent m_clientsEvent = new AutoResetEvent(true);
         private TcpListener m_server;
-        private Thread m_listeningThread;
-        private Thread m_recivingThread;
         private Action<string> m_callback_received;
 
         public void start(Action<string> a_callback_received, int a_port = 13200)
@@ -28,11 +26,11 @@ namespace kukersplay
 
             m_running = true;
 
-            m_listeningThread = new Thread(new ThreadStart(listeningThreadAsync));
-            m_listeningThread.Start();
+            Thread listeningThread = new Thread(new ThreadStart(listeningThreadAsync));
+            listeningThread.Start();
 
-            m_recivingThread = new Thread(new ThreadStart(recivingThreadAsync));
-            m_recivingThread.Start();
+            Thread recivingThread = new Thread(new ThreadStart(recivingThreadAsync));
+            recivingThread.Start();
         }
 
         public void stop()
@@ -69,20 +67,20 @@ namespace kukersplay
         {
             while (m_running)
             {
+                m_clientsEvent.WaitOne();
                 try
                 {
                     TcpClient client = await m_server.AcceptTcpClientAsync();
                     if (client != null)
                     {
-                        m_clientsEvent.WaitOne();
                         m_clients.Add(client);
-                        m_clientsEvent.Set();
                     }
                 }
                 catch (Exception)
                 {
                     // nothing to do
                 }
+                m_clientsEvent.Set();
                 Thread.Sleep(100);
             }
         }
@@ -101,7 +99,7 @@ namespace kukersplay
                         String data = await reader.ReadLineAsync();
                         if (data != null && data != "")
                         {
-                            Thread tmpThread = new Thread(callbackThread);
+                            Thread tmpThread = new Thread(new ParameterizedThreadStart(callbackThread));
                             tmpThread.Start(data);
                         }
                     }
