@@ -69,6 +69,7 @@ namespace kukersplay
 
         private void allStop()
         {
+            send(m_messageManager.buildResetInfo());
             m_udpServer.stop();
             m_udpClient.stop();
             m_tcpClient.stop();

@@ -14,7 +14,6 @@ namespace kukersplay
     {
         private volatile bool m_running = true;
         private List<TcpClient> m_clients = new List<TcpClient>();
-        private AutoResetEvent m_clientsEvent = new AutoResetEvent(true);
         private TcpListener m_server;
         private Action<string> m_callback_received;
 
@@ -45,7 +44,6 @@ namespace kukersplay
 
         public void send(string a_message)
         {
-            m_clientsEvent.WaitOne();
             foreach (TcpClient client in m_clients)
             {
                 try
@@ -60,14 +58,12 @@ namespace kukersplay
                     // nothing to do
                 }
             }
-            m_clientsEvent.Set();
         }
 
         private async void listeningThreadAsync()
         {
             while (m_running)
             {
-                m_clientsEvent.WaitOne();
                 try
                 {
                     TcpClient client = await m_server.AcceptTcpClientAsync();
@@ -80,7 +76,6 @@ namespace kukersplay
                 {
                     // nothing to do
                 }
-                m_clientsEvent.Set();
                 Thread.Sleep(100);
             }
         }
@@ -89,7 +84,6 @@ namespace kukersplay
         {
             while (m_running)
             {
-                m_clientsEvent.WaitOne();
                 foreach (TcpClient client in m_clients)
                 {
                     try
@@ -108,7 +102,6 @@ namespace kukersplay
                         // nothing to do
                     }
                 }
-                m_clientsEvent.Set();
                 Thread.Sleep(100);
             }
         }

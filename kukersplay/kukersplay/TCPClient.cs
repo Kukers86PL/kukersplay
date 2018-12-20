@@ -14,11 +14,9 @@ namespace kukersplay
         private TcpClient m_client;
         private volatile bool m_running;
         private Action<string> m_callback_received;
-        private AutoResetEvent m_clientEvent = new AutoResetEvent(true);
 
         public void send(string a_message)
         {
-            m_clientEvent.WaitOne();
             try
             {
                 NetworkStream stream = m_client.GetStream();
@@ -30,7 +28,6 @@ namespace kukersplay
             {
 
             }
-            m_clientEvent.Set();
         }
 
         public void start(Action<string> a_callback_received, string a_hostname, int a_port = 13200)
@@ -53,7 +50,6 @@ namespace kukersplay
         {
             while (m_running)
             {
-                m_clientEvent.WaitOne();
                 try
                 {
                     NetworkStream stream = m_client.GetStream();
@@ -69,7 +65,6 @@ namespace kukersplay
                 {
                     // nothing to do
                 }
-                m_clientEvent.Set();
                 Thread.Sleep(100);
             }
         }
