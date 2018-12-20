@@ -43,5 +43,5 @@ while 1
 		MouseClick("left", $x, $y)
 		ExitLoop
 	EndIf
-	sleep(1000)
+	sleep(2000)
 WEnd

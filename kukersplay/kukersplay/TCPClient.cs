@@ -57,8 +57,7 @@ namespace kukersplay
                     string data = await client_reader.ReadLineAsync();
                     if (data != null && data != "")
                     {
-                        Thread tmpThread = new Thread(new ParameterizedThreadStart(callbackThread));
-                        tmpThread.Start(data);
+                        m_callback_received(data);
                     }
                 }
                 catch (Exception)
@@ -67,11 +66,6 @@ namespace kukersplay
                 }
                 Thread.Sleep(100);
             }
-        }
-
-        private void callbackThread(object data)
-        {
-            m_callback_received((string)data);
         }
     }
 }
