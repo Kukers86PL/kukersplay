@@ -16,7 +16,6 @@ namespace kukersplay
         private List<TcpClient> m_clients = new List<TcpClient>();
         private TcpListener m_server;
         private Action<string> m_callback_received;
-        private static SemaphoreSlim m_sem = new SemaphoreSlim(1);
 
         public void start(Action<string> a_callback_received, int a_port = 13200)
         {
@@ -37,17 +36,14 @@ namespace kukersplay
         {
             m_running = false;
             if (m_server != null) m_server.Stop();
-            m_sem.Wait();
             foreach (TcpClient client in m_clients)
             {
                 client.Close();
             }
-            m_sem.Release();
         }
 
         public void send(string a_message)
         {
-            m_sem.Wait();
             foreach (TcpClient client in m_clients)
             {
                 try
@@ -62,7 +58,6 @@ namespace kukersplay
                     // nothing to do
                 }
             }
-            m_sem.Release();
         }
 
         private async void listeningThreadAsync()
@@ -74,9 +69,7 @@ namespace kukersplay
                     TcpClient client = await m_server.AcceptTcpClientAsync();
                     if (client != null)
                     {
-                        m_sem.Wait();
                         m_clients.Add(client);
-                        m_sem.Release();
                     }
                 }
                 catch (Exception)
@@ -91,7 +84,6 @@ namespace kukersplay
         {
             while (m_running)
             {
-                m_sem.Wait();
                 foreach (TcpClient client in m_clients)
                 {
                     try
@@ -101,8 +93,7 @@ namespace kukersplay
                         String data = await reader.ReadLineAsync();
                         if (data != null && data != "")
                         {
-                            Thread tmpThread = new Thread(new ParameterizedThreadStart(callbackThread));
-                            tmpThread.Start(data);
+                            m_callback_received(data);
                         }
                     }
                     catch (Exception)
@@ -110,14 +101,8 @@ namespace kukersplay
                         // nothing to do
                     }
                 }
-                m_sem.Release();
                 Thread.Sleep(100);
             }
-        }
-
-        private void callbackThread(object data)
-        {
-            m_callback_received((string)data);
         }
     }
 }
