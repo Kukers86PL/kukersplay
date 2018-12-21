@@ -174,13 +174,26 @@ namespace kukersplay
                     if (!(File.ReadAllText("./ipaddress.txt").Contains(m_messageManager.getHostIP())))
                     {
                         File.WriteAllText("./hostip.txt", m_messageManager.getHostIP());
-                        var startInfo = new ProcessStartInfo();
+                        if (m_messageManager.getHostGame() == GAME_TYPE.GAME_H3_NEW_TYPE)
+                        {
+                            var startInfo = new ProcessStartInfo();
 
-                        startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
-                        startInfo.FileName = File.ReadAllText("./h3.txt");
+                            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+                            startInfo.FileName = File.ReadAllText("./h3.txt");
 
-                        Process.Start(startInfo);
-                        Process.Start("AutoIt3_x64.exe", "h3newjoin.au3").WaitForExit();
+                            Process.Start(startInfo);
+                            Process.Start("AutoIt3_x64.exe", "h3newjoin.au3").WaitForExit();
+                        }
+                        else if (m_messageManager.getHostGame() == GAME_TYPE.GAME_H3_LOAD_TYPE)
+                        {
+                            var startInfo = new ProcessStartInfo();
+
+                            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+                            startInfo.FileName = File.ReadAllText("./h3.txt");
+
+                            Process.Start(startInfo);
+                            Process.Start("AutoIt3_x64.exe", "h3loadjoin.au3").WaitForExit();
+                        }
                     }
                     break;
                 default:
@@ -203,7 +216,19 @@ namespace kukersplay
 
             Process.Start(startInfo);
             Process.Start("AutoIt3_x64.exe", "h3newhost.au3").WaitForExit();
-            send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_TYPE));
+            send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_NEW_TYPE));
+        }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            var startInfo = new ProcessStartInfo();
+
+            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+            startInfo.FileName = File.ReadAllText("./h3.txt");
+
+            Process.Start(startInfo);
+            Process.Start("AutoIt3_x64.exe", "h3loadhost.au3").WaitForExit();
+            send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_LOAD_TYPE));
         }
     }
 }

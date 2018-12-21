@@ -20,7 +20,8 @@ namespace kukersplay
         private static string MSG_CLIENT_INFO = "CLIENT";
         private static string MSG_RESET_INFO = "RESET";
         private static string MSG_HOST_INFO = "HOST";
-        private static string GAME_H3_INFO = "H3";
+        private static string GAME_H3_NEW_INFO = "H3_NEW";
+        private static string GAME_H3_LOAD_INFO = "H3_LOAD";
 
         public string buildClientInfo(string a_login, string a_clientIP)
         {
@@ -76,9 +77,13 @@ namespace kukersplay
                 {
                     string game = words[1];
                     m_hostIP = words[2];
-                    if (game.Contains(GAME_H3_INFO))
+                    if (game.Contains(GAME_H3_NEW_INFO))
                     {
-                        m_hostGame = GAME_TYPE.GAME_H3_TYPE;
+                        m_hostGame = GAME_TYPE.GAME_H3_NEW_TYPE;
+                    }
+                    else if (game.Contains(GAME_H3_LOAD_INFO))
+                    {
+                        m_hostGame = GAME_TYPE.GAME_H3_LOAD_TYPE;
                     }
                     return MSG_TYPE.MSG_HOST_INFO_TYPE;
                 }
@@ -92,9 +97,13 @@ namespace kukersplay
 
         public string buildHostInfo(string a_host, GAME_TYPE a_game)
         {
-            if (a_game == GAME_TYPE.GAME_H3_TYPE)
+            if (a_game == GAME_TYPE.GAME_H3_NEW_TYPE)
             {
-                return MSG_HOST_INFO + DELIMITER + GAME_H3_INFO + DELIMITER + Regex.Replace(a_host, @"\s+", "");
+                return MSG_HOST_INFO + DELIMITER + GAME_H3_NEW_INFO + DELIMITER + Regex.Replace(a_host, @"\s+", "");
+            }
+            else if (a_game == GAME_TYPE.GAME_H3_LOAD_TYPE)
+            {
+                return MSG_HOST_INFO + DELIMITER + GAME_H3_LOAD_INFO + DELIMITER + Regex.Replace(a_host, @"\s+", "");
             }
             return "";
         }

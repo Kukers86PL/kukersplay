@@ -17,7 +17,8 @@ namespace kukersplay
 
     enum GAME_TYPE
     {
-        GAME_H3_TYPE = 0
+        GAME_H3_NEW_TYPE = 0,
+        GAME_H3_LOAD_TYPE
     }
 
     interface IMessagesManager

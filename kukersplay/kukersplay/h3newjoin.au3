@@ -6,6 +6,7 @@ global $host = FileReadLine("./hostip.txt")
 
 while 1
 	WinActivate("Heroes of Might and Magic")
+	MouseClick("left", 0, 0)
 	Local $search = _ImageSearch('h3newgamebutton.png', 1, $x, $y, 15)
 	If $search = 1 Then
 		MouseClick("left", $x, $y)
