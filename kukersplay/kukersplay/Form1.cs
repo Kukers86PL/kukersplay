@@ -23,6 +23,7 @@ namespace kukersplay
         private ITCPClient m_tcpClient = new TCPClient();
         private ITCPServer m_tcpServer = new TCPServer();
         private IMessagesManager m_messageManager = new MessagesManager();
+        private bool m_logged = false;
 
         public Form1()
         {
@@ -89,6 +90,7 @@ namespace kukersplay
             if (File.ReadAllText("./result.txt") == "true\r\n")
             {
                 m_udpClient.start(udp_client_received_callback, udp_client_timeout_callback);
+                m_logged = true;
             }
         }
 
@@ -176,23 +178,37 @@ namespace kukersplay
                         File.WriteAllText("./hostip.txt", m_messageManager.getHostIP());
                         if (m_messageManager.getHostGame() == GAME_TYPE.GAME_H3_NEW_TYPE)
                         {
-                            var startInfo = new ProcessStartInfo();
+                            try
+                            {
+                                var startInfo = new ProcessStartInfo();
 
-                            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
-                            startInfo.FileName = File.ReadAllText("./h3.txt");
+                                startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+                                startInfo.FileName = File.ReadAllText("./h3.txt");
 
-                            Process.Start(startInfo);
-                            Process.Start("AutoIt3_x64.exe", "h3newjoin.au3").WaitForExit();
+                                Process.Start(startInfo);
+                                Process.Start("AutoIt3_x64.exe", "h3newjoin.au3").WaitForExit();
+                            }
+                            catch (Exception)
+                            {
+                                MessageBox.Show("H3 start failed. Please detect H3 again.");
+                            }
                         }
                         else if (m_messageManager.getHostGame() == GAME_TYPE.GAME_H3_LOAD_TYPE)
                         {
-                            var startInfo = new ProcessStartInfo();
+                            try
+                            {
+                                var startInfo = new ProcessStartInfo();
 
-                            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
-                            startInfo.FileName = File.ReadAllText("./h3.txt");
+                                startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+                                startInfo.FileName = File.ReadAllText("./h3.txt");
 
-                            Process.Start(startInfo);
-                            Process.Start("AutoIt3_x64.exe", "h3loadjoin.au3").WaitForExit();
+                                Process.Start(startInfo);
+                                Process.Start("AutoIt3_x64.exe", "h3loadjoin.au3").WaitForExit();
+                            }
+                            catch (Exception)
+                            {
+                                MessageBox.Show("H3 start failed. Please detect H3 again.");
+                            }
                         }
                     }
                     break;
@@ -209,26 +225,55 @@ namespace kukersplay
 
         private void button3_Click_1(object sender, EventArgs e)
         {
-            var startInfo = new ProcessStartInfo();
+            if (m_logged)
+            {
+                try
+                {
 
-            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
-            startInfo.FileName = File.ReadAllText("./h3.txt");
+                    var startInfo = new ProcessStartInfo();
 
-            Process.Start(startInfo);
-            Process.Start("AutoIt3_x64.exe", "h3newhost.au3").WaitForExit();
-            send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_NEW_TYPE));
+                    startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+                    startInfo.FileName = File.ReadAllText("./h3.txt");
+
+                    Process.Start(startInfo);
+                    Process.Start("AutoIt3_x64.exe", "h3newhost.au3").WaitForExit();
+                    send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_NEW_TYPE));
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("H3 start failed. Please detect H3 again.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("You are not logged in. Please login first.");
+            }
         }
 
         private void button4_Click_1(object sender, EventArgs e)
         {
-            var startInfo = new ProcessStartInfo();
+            if (m_logged)
+            {
+                try
+                {
+                    var startInfo = new ProcessStartInfo();
 
-            startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
-            startInfo.FileName = File.ReadAllText("./h3.txt");
+                    startInfo.WorkingDirectory = Path.GetDirectoryName(File.ReadAllText("./h3.txt"));
+                    startInfo.FileName = File.ReadAllText("./h3.txt");
 
-            Process.Start(startInfo);
-            Process.Start("AutoIt3_x64.exe", "h3loadhost.au3").WaitForExit();
-            send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_LOAD_TYPE));
+                    Process.Start(startInfo);
+                    Process.Start("AutoIt3_x64.exe", "h3loadhost.au3").WaitForExit();
+                    send(m_messageManager.buildHostInfo(File.ReadAllText("./ipaddress.txt"), GAME_TYPE.GAME_H3_LOAD_TYPE));
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("H3 start failed. Please detect H3 again.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("You are not logged in. Please login first.");
+            }
         }
     }
 }
