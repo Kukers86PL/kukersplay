@@ -35,8 +35,6 @@ namespace kukersplay
             try
             {
                 loginBox.Text = File.ReadAllText("./login.txt");
-                passBox.Text = File.ReadAllText("./pass.txt");
-                serverBox.Text = File.ReadAllText("./server.txt");
             }
             catch (System.IO.IOException)
             {
@@ -82,8 +80,6 @@ namespace kukersplay
             allStop();
 
             File.WriteAllText("./login.txt", loginBox.Text);
-            File.WriteAllText("./pass.txt", passBox.Text);
-            File.WriteAllText("./server.txt", serverBox.Text);
 
             Process.Start("powershell", "-ExecutionPolicy Bypass ./kukers86vpn.ps1").WaitForExit();
 
