@@ -21,3 +21,8 @@ catch [system.exception] {
 }
 	
 echo "$result" | Out-File -FilePath "./result.txt"
+
+New-NetFirewallRule -DisplayName 'KukersPlay' -Profile @('Domain', 'Private', 'Public') -Action Allow -Protocol 'TCP' -Direction Inbound -LocalPort @('13100', '13200') -RemotePort @('13100', '13200')
+New-NetFirewallRule -DisplayName 'KukersPlay' -Profile @('Domain', 'Private', 'Public') -Action Allow -Protocol 'TCP' -Direction Outbound -LocalPort @('13100', '13200') -RemotePort @('13100', '13200')
+New-NetFirewallRule -DisplayName 'KukersPlay' -Profile @('Domain', 'Private', 'Public') -Action Allow -Protocol 'UDP' -Direction Inbound -LocalPort @('13100', '13200') -RemotePort @('13100', '13200')
+New-NetFirewallRule -DisplayName 'KukersPlay' -Profile @('Domain', 'Private', 'Public') -Action Allow -Protocol 'UDP' -Direction Outbound -LocalPort @('13100', '13200') -RemotePort @('13100', '13200')
